@@ -18,7 +18,7 @@ const zeroPaddedNumber = (num) => {
 const readCounter = (callback) => {
   fs.readFile(exports.counterFile, (err, fileData) => {
     if (err) {
-      callback(null, 0);
+      callback(null, 0); //if 1st argument in error case is null, then how does getNextUniqueId recognize the error?
     } else {
       callback(null, Number(fileData));
     }
@@ -38,9 +38,21 @@ const writeCounter = (count, callback) => {
 
 // Public API - Fix this function //////////////////////////////////////////////
 
-exports.getNextUniqueId = () => {
-  counter = counter + 1;
-  return zeroPaddedNumber(counter);
+exports.getNextUniqueId = (callback) => {
+  readCounter((err, currId) => {
+    if (err) {
+      callback(err); //error handling at line 21?
+    } else {
+      var newId = currId + 1;
+      writeCounter(newId, (err, counterString) => {
+        if (err) {
+          callback(err);
+        } else {
+          callback(null, counterString);
+        }
+      });
+    }
+  });
 };
 
 
